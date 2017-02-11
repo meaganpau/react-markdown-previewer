@@ -9478,8 +9478,9 @@ var Editor = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (Editor.__proto__ || Object.getPrototypeOf(Editor)).call(this, props));
 
         _this.state = {
-            value: "### Markdown Previewer \n ---- \n Hi, I made this so I can quickly write documentation using markdown at work, there are many other online examples on which I drew inspiration from, enjoy! \n\nLearn how to use markdown here: **[How To Markdown](http://www.markdowntutorial.com/)**"
+            value: _this.socketVal !== undefined ? socketVal : '### Markdown Previewer \n ---- \n Hi, I made this so I can quickly write documentation using markdown at work, there are many other online examples on which I drew inspiration from, enjoy! \n\nLearn how to use markdown here: **[How To Markdown](http://www.markdowntutorial.com/)**'
         };
+        _this.socketVal;
         return _this;
     }
 
@@ -9487,6 +9488,13 @@ var Editor = function (_React$Component) {
         key: 'saveToFile',
         value: function saveToFile(file) {
             _fileSaver2.default.saveAs(file);
+        }
+    }, {
+        key: 'emitMessage',
+        value: function emitMessage(value) {
+            var socket = io({ transports: ['websocket'], upgrade: false });
+            console.log('hi');
+            socket.emit('text', value);
         }
     }, {
         key: 'render',
@@ -9499,13 +9507,12 @@ var Editor = function (_React$Component) {
                     __html: parsedMarkdown
                 };
             };
-
             var markdownFile = new File([this.state.value], 'markdown.md', { type: "text/plain;charset=utf-8" });
             var htmlFile = new File([(0, _marked2.default)(this.state.value)], 'markdown.html', { type: "text/plain;charset=utf-8" });
 
             return _react2.default.createElement(
                 'div',
-                { 'class': 'container' },
+                { className: 'container' },
                 _react2.default.createElement(
                     'div',
                     { className: 'flex-container' },
@@ -9519,17 +9526,24 @@ var Editor = function (_React$Component) {
                     { className: 'btn-control' },
                     _react2.default.createElement(
                         'button',
-                        { type: '', onClick: function onClick() {
+                        { onClick: function onClick() {
                                 _this2.saveToFile(markdownFile);
                             } },
                         ' Save as markdown '
                     ),
                     _react2.default.createElement(
                         'button',
-                        { type: '', onClick: function onClick() {
+                        { onClick: function onClick() {
                                 _this2.saveToFile(htmlFile);
                             } },
                         ' Save as html'
+                    ),
+                    _react2.default.createElement(
+                        'button',
+                        { onClick: function onClick() {
+                                _this2.emitMessage(_this2.state.value);
+                            } },
+                        'Share'
                     )
                 )
             );
